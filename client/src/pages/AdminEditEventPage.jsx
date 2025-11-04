@@ -21,11 +21,7 @@ const AdminEditEventPage = () => {
     const fetchEvent = async () => {
       try {
         setIsFetching(true);
-        const response = await fetch(`http://localhost:5001/api/events/${id}`, {
-          headers: { 'Authorization': `Bearer ${user.token}` },
-        });
-        if (!response.ok) throw new Error('Etkinlik verisi alınamadı.');
-        const data = await response.json();
+        const response = await api.get(`/events/${id}`);
         setInitialEventData(data);
       } catch (err) {
         setError(err.message);
@@ -49,15 +45,11 @@ const AdminEditEventPage = () => {
         const mediaFormData = new FormData();
         newMediaFiles.forEach(file => mediaFormData.append('media', file));
 
-        const uploadResponse = await fetch('http://localhost:5001/api/upload', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${user.token}` },
-          body: mediaFormData,
-        });
-
-        if (!uploadResponse.ok) throw new Error('Yeni dosyalar yüklenemedi.');
-        const uploadResult = await uploadResponse.json();
-        
+        const uploadResponse = await api.post('/upload', mediaFormData, {
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
+                });        
         uploadResult.urls.forEach(url => {
           if (url.match(/\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i)) newImageUrls.push(url);
           else if (url.match(/\.(mp4|mov|avi|mkv|webm|ogg)$/i)) newVideoUrls.push(url);
@@ -78,19 +70,7 @@ const AdminEditEventPage = () => {
         videoUrls: finalVideoUrls,
       };
 
-      const eventResponse = await fetch(`http://localhost:5001/api/events/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(finalEventData),
-      });
-
-      if (!eventResponse.ok) {
-        const errorData = await eventResponse.json();
-        throw new Error(errorData.message || 'Etkinlik güncellenemedi.');
-      }
+      const eventResponse = await api.put(`/events/${id}`, finalEventData);
 
       navigate('/admin/dashboard');
     } catch (err) {

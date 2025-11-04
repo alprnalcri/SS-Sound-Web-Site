@@ -21,14 +21,11 @@ const AdminNewEventPage = () => {
         const mediaFormData = new FormData();
         mediaFiles.forEach(file => mediaFormData.append('media', file));
 
-        const uploadResponse = await fetch('http://localhost:5001/api/upload', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${user.token}` },
-          body: mediaFormData,
+        const uploadResponse = await api.post('/upload', mediaFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
-
-        if (!uploadResponse.ok) throw new Error('Dosya yüklenirken bir hata oluştu.');
-        const uploadResult = await uploadResponse.json();
 
         uploadResult.urls.forEach(url => {
           if (url.match(/\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i)) uploadedImageUrls.push(url);
@@ -37,16 +34,7 @@ const AdminNewEventPage = () => {
       }
 
       const finalEventData = { ...formData, imageUrls: uploadedImageUrls, videoUrls: uploadedVideoUrls };
-      const eventResponse = await fetch('http://localhost:5001/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
-        body: JSON.stringify(finalEventData),
-      });
-
-      if (!eventResponse.ok) {
-        const errorData = await eventResponse.json();
-        throw new Error(errorData.message || 'Etkinlik oluşturulamadı');
-      }
+      const eventResponse = await api.post('/events', finalEventData);
 
       navigate('/admin/dashboard');
     } catch (err) {

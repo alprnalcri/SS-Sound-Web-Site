@@ -26,9 +26,7 @@ const EventDetailPage = () => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5001/api/events/${id}`);
-        if (!response.ok) throw new Error('Etkinlik bilgisi alınamadı.');
-        const data = await response.json();
+        const response = await api.get(`/events/${id}`);
         setEvent(data);
       } catch (err) {
         setError(err.message);
@@ -71,7 +69,7 @@ const EventDetailPage = () => {
                   </div>
                 ) : (
                   <img
-                    src={(event.imageUrls && event.imageUrls.length > 0) ? `http://localhost:5001${event.imageUrls[0]}` : 'https://via.placeholder.com/800x600'}
+                    src={(event.imageUrls && event.imageUrls.length > 0) ? `${process.env.REACT_APP_API_URL.replace('/api', '')}${event.imageUrls[0]}` : 'https://via.placeholder.com/800x600'}
                     alt={event.name}
                     className="w-full h-64 lg:h-full object-cover bg-card-light dark:bg-card-dark"
                   />

@@ -52,7 +52,7 @@ const EventForm = ({ initialData = {}, onSubmit, isEditMode = false, isLoading =
   const renderFilePreview = (file) => {
     // file bir string ise (mevcut medya), URL'den tip çıkarımı yap
     if (typeof file === 'string') {
-      const src = `http://localhost:5001${file}`;
+      const src = `${process.env.REACT_APP_API_URL.replace('/api', '')}${file}`;
       if (file.match(/\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i)) {
         return <img src={src} alt="Mevcut medya" className="w-full h-full object-cover" />;
       }

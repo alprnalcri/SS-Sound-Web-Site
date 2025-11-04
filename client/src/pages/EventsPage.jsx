@@ -17,11 +17,7 @@ const EventsPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/events');
-        if (!response.ok) {
-          throw new Error('Etkinlikler çekilemedi');
-        }
-        const data = await response.json();
+        const response = await api.get('/events');
         setEvents(data);
       } catch (err) {
         setError(err.message);
@@ -60,7 +56,7 @@ const EventsPage = () => {
                       <EventCardCarousel imageUrls={event.imageUrls} />
                     </div>
                   ) : (
-                    <img src={(event.imageUrls && event.imageUrls.length > 0) ? `http://localhost:5001${event.imageUrls[0]}` : 'https://via.placeholder.com/400x300'} alt={event.name} className="w-full h-40 object-cover bg-card-light dark:bg-card-dark rounded-t-lg" />
+                    <img src={(event.imageUrls && event.imageUrls.length > 0) ? `${process.env.REACT_APP_API_URL.replace('/api', '')}${event.imageUrls[0]}` : 'https://via.placeholder.com/400x300'} alt={event.name} className="w-full h-40 object-cover bg-card-light dark:bg-card-dark rounded-t-lg" />
                   )}
                   <div className="p-4 flex-grow"> {/* Padding only for text content */}
                     <h3 className="text-2xl font-bold text-primary-light dark:text-primary-dark mb-2 truncate">{event.name}</h3>
