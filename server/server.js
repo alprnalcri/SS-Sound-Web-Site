@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const app = express();
 
 // Gerekli middleware'ler
-app.use(cors()); // Farklı portlardaki client ve server arasında iletişimi sağlar
+app.use(cors({ origin: process.env.CORS_ORIGIN })); // Sadece belirli bir adresten gelen isteklere izin ver
 app.use(express.json()); // Gelen JSON verilerini parse eder
 
 // Yüklenen dosyalara public erişim için

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Backend API'mizin temel URL'si
 // AuthContext.js ve AdminDashboardPage.jsx'de 5001 portu kullanıldığı için burada da 5001 kullanıyoruz.
-const API_URL = '/api'; 
+const API_URL = process.env.REACT_APP_API_URL; 
 
 const api = axios.create({
   baseURL: API_URL,
