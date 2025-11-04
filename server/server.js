@@ -9,7 +9,8 @@ const app = express();
 
 // CORS ayarı (Vercel domainini .env içine ekle)
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  origin: ["https://ss-sound-web-site.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
