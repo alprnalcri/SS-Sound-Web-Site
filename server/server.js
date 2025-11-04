@@ -1,48 +1,41 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const mongoose = require('mongoose');
+const path = require('path');
 
 // Express uygulamasını başlat
 const app = express();
 
-// Gerekli middleware'ler
-app.use(cors({ origin: process.env.CORS_ORIGIN })); // Sadece belirli bir adresten gelen isteklere izin ver
-app.use(express.json()); // Gelen JSON verilerini parse eder
-
-// Yüklenen dosyalara public erişim için
+// Middleware'ler
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(express.json());
 app.use(express.static('public'));
 
 // API Rotaları
 const eventRoutes = require('./routes/events');
-app.use('/api/events', eventRoutes);
-
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
-
 const uploadRoutes = require('./routes/upload');
-app.use('/api/upload', uploadRoutes);
-
 const galleryRoutes = require('./routes/gallery');
-app.use('/api/gallery', galleryRoutes);
-
 const contentRoutes = require('./routes/content');
-app.use('/api/content', contentRoutes);
-
 const contactRoutes = require('./routes/contact');
+
+app.use('/api/events', eventRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/content', contentRoutes);
 app.use('/api/contact', contactRoutes);
 
-// Üretim ortamı için eklendi
-const path = require('path');
-
-// Üretim ortamında static dosyaları sun
+// Üretim ortamı için frontend yönlendirmesi
 if (process.env.NODE_ENV === 'production') {
-  // Client'ın build klasörünü statik olarak sun
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  const clientPath = path.join(__dirname, '../client/build');
+  app.use(express.static(clientPath));
 
-  // API rotaları dışındaki tüm istekleri client'ın index.html'ine yönlendir
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  // Tüm diğer istekleri React'ın index.html'ine yönlendir
+  app.use((req, res) => {
+    res.sendFile(path.resolve(clientPath, 'index.html'));
   });
 }
 
@@ -50,25 +43,24 @@ if (process.env.NODE_ENV === 'production') {
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB bağlantısı başarılı!');
+    console.log('✅ MongoDB bağlantısı başarılı!');
   } catch (error) {
-    console.error('MongoDB bağlantı hatası:', error);
-    process.exit(1); // Hata durumunda uygulamayı kapat
+    console.error('❌ MongoDB bağlantı hatası:', error);
+    process.exit(1);
   }
 };
 
-// Basit bir test rotası
+// Test rotası
 app.get('/', (req, res) => {
-  res.json({ message: 'Akord Organizasyon API sunucusu çalışıyor.' });
+  res.json({ message: 'Akord Organizasyon API çalışıyor 🚀' });
 });
 
-// Portu belirle (önce .env dosyasından, bulamazsa 5000'i kullan)
+// Port ayarı
 const PORT = process.env.PORT || 5000;
 
-// Sunucuyu dinlemeye başla
-// Önce veritabanına bağlan, sonra sunucuyu başlat
+// Sunucuyu başlat
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda çalışıyor...`);
+    console.log(`🌐 Sunucu ${PORT} portunda çalışıyor...`);
   });
 });
