@@ -32,6 +32,20 @@ app.use('/api/content', contentRoutes);
 const contactRoutes = require('./routes/contact');
 app.use('/api/contact', contactRoutes);
 
+// Üretim ortamı için eklendi
+const path = require('path');
+
+// Üretim ortamında static dosyaları sun
+if (process.env.NODE_ENV === 'production') {
+  // Client'ın build klasörünü statik olarak sun
+  app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // API rotaları dışındaki tüm istekleri client'ın index.html'ine yönlendir
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  });
+}
+
 // MongoDB bağlantısı
 const connectDB = async () => {
   try {
