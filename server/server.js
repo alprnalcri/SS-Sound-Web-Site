@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -8,57 +7,56 @@ const path = require('path');
 // Express uygulamasını başlat
 const app = express();
 
-// Middleware'ler
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
+// CORS ayarı (Vercel domainini .env içine ekle)
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*', // Örn: https://senin-frontend.vercel.app
+  credentials: true
+}));
+
+// JSON verisini parse et
 app.use(express.json());
+
+// Public klasörünü aç (örneğin yüklenen görseller için)
 app.use(express.static('public'));
 
-// API Rotaları
+// === API Rotaları ===
 const eventRoutes = require('./routes/events');
-const authRoutes = require('./routes/auth');
-const uploadRoutes = require('./routes/upload');
-const galleryRoutes = require('./routes/gallery');
-const contentRoutes = require('./routes/content');
-const contactRoutes = require('./routes/contact');
-
 app.use('/api/events', eventRoutes);
+
+const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
+
+const uploadRoutes = require('./routes/upload');
 app.use('/api/upload', uploadRoutes);
+
+const galleryRoutes = require('./routes/gallery');
 app.use('/api/gallery', galleryRoutes);
+
+const contentRoutes = require('./routes/content');
 app.use('/api/content', contentRoutes);
+
+const contactRoutes = require('./routes/contact');
 app.use('/api/contact', contactRoutes);
 
-// Üretim ortamı için frontend yönlendirmesi
-if (process.env.NODE_ENV === 'production') {
-  const clientPath = path.join(__dirname, '../client/build');
-  app.use(express.static(clientPath));
+// === Test rotası ===
+app.get('/', (req, res) => {
+  res.json({ message: '✅ ss Organizasyon API çalışıyor (Render üzerinde).' });
+});
 
-  // Tüm diğer istekleri React'ın index.html'ine yönlendir
-  app.use((req, res) => {
-    res.sendFile(path.resolve(clientPath, 'index.html'));
-  });
-}
-
-// MongoDB bağlantısı
+// === MongoDB bağlantısı ===
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ MongoDB bağlantısı başarılı!');
   } catch (error) {
-    console.error('❌ MongoDB bağlantı hatası:', error);
+    console.error('❌ MongoDB bağlantı hatası:', error.message);
     process.exit(1);
   }
 };
 
-// Test rotası
-app.get('/', (req, res) => {
-  res.json({ message: 'Akord Organizasyon API çalışıyor 🚀' });
-});
-
-// Port ayarı
+// === Sunucuyu başlat ===
 const PORT = process.env.PORT || 5000;
 
-// Sunucuyu başlat
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🌐 Sunucu ${PORT} portunda çalışıyor...`);
